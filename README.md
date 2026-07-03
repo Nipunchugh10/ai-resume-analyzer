@@ -37,6 +37,22 @@ React Dashboard
 
 ## Setup Instructions
 
+### Quick Start (Windows PowerShell)
+
+You can run both the backend and frontend with a single command from the project root:
+
+```powershell
+.\run.ps1
+```
+
+*(Note: If your PowerShell has script execution restrictions, run `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass` or launch with `powershell -ExecutionPolicy Bypass -File .\run.ps1`)*
+
+This script automatically verifies pre-requisites, performs setup (virtual environments, npm installs, and models) if missing, starts both the backend and frontend servers, and safely stops the backend when you exit with `Ctrl+C`.
+
+---
+
+### Manual Setup
+
 ### 1. Backend
 
 ```bash

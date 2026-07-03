@@ -34,6 +34,36 @@
   --shadow: 0 1px 3px rgba(0,0,0,.1), 0 1px 2px rgba(0,0,0,.06);
   --shadow-md: 0 4px 6px rgba(0,0,0,.07), 0 2px 4px rgba(0,0,0,.06);
   --shadow-lg: 0 10px 15px rgba(0,0,0,.1), 0 4px 6px rgba(0,0,0,.05);
+  --card-bg: #ffffff;
+}
+
+/* ── Dark Theme Overrides ───────────────────────────────────── */
+[data-theme="dark"] {
+  --card-bg: #151f32;
+  --gray-50: #0b111e;
+  --gray-100: #151f32;
+  --gray-200: #22314d;
+  --gray-300: #334155;
+  --gray-400: #64748b;
+  --gray-500: #94a3b8;
+  --gray-600: #cbd5e1;
+  --gray-700: #e2e8f0;
+  --gray-800: #f1f5f9;
+  --gray-900: #ffffff;
+  
+  --green-100: rgba(34, 197, 94, 0.15);
+  --red-100: rgba(239, 68, 68, 0.15);
+  --blue-100: rgba(59, 130, 246, 0.15);
+  --orange-100: rgba(249, 115, 22, 0.15);
+  --yellow-100: rgba(234, 179, 8, 0.15);
+
+  --blue-50: #0f172a;
+  --blue-200: #1e293b;
+  
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.5);
+  --shadow: 0 4px 12px rgba(0,0,0,.3);
+  --shadow-md: 0 8px 16px rgba(0,0,0,.4);
+  --shadow-lg: 0 12px 24px rgba(0,0,0,.5);
 }
 
 body {
@@ -122,7 +152,7 @@ body {
   padding: 48px 24px;
   cursor: pointer;
   transition: all .2s;
-  background: #fff;
+  background: var(--card-bg);
   margin-bottom: 20px;
 }
 .drop-zone:hover, .drop-zone.drag-active {
@@ -196,7 +226,7 @@ body {
   text-align: left;
 }
 .feature-card {
-  background: #fff;
+  background: var(--card-bg);
   border-radius: var(--radius);
   padding: 24px;
   box-shadow: var(--shadow);
@@ -231,7 +261,7 @@ body {
 /* Sidebar */
 .sidebar { display: flex; flex-direction: column; gap: 16px; }
 .sidebar-card {
-  background: #fff;
+  background: var(--card-bg);
   border-radius: var(--radius);
   padding: 20px;
   box-shadow: var(--shadow);
@@ -252,7 +282,7 @@ body {
 /* ── Score Card (Sidebar) ───────────────────────────────────── */
 
 .score-card {
-  background: #fff;
+  background: var(--card-bg);
   border-radius: var(--radius);
   padding: 24px;
   box-shadow: var(--shadow);
@@ -289,7 +319,7 @@ body {
 /* ── Sections Detected ──────────────────────────────────────── */
 
 .sections-card {
-  background: #fff;
+  background: var(--card-bg);
   border-radius: var(--radius);
   padding: 20px;
   box-shadow: var(--shadow);
@@ -313,7 +343,7 @@ body {
 .tab-nav {
   display: flex;
   gap: 4px;
-  background: #fff;
+  background: var(--card-bg);
   border-radius: var(--radius);
   padding: 4px;
   box-shadow: var(--shadow);
@@ -345,7 +375,7 @@ body {
 
 .overview-grid { display: flex; flex-direction: column; gap: 20px; }
 .ov-section {
-  background: #fff;
+  background: var(--card-bg);
   border-radius: var(--radius);
   padding: 24px;
   box-shadow: var(--shadow);
@@ -426,7 +456,7 @@ body {
 
 .skills-panel { display: flex; flex-direction: column; gap: 16px; }
 .skill-category-card {
-  background: #fff;
+  background: var(--card-bg);
   border-radius: var(--radius);
   padding: 20px;
   box-shadow: var(--shadow);
@@ -458,7 +488,7 @@ body {
 }
 
 .entities-card {
-  background: #fff;
+  background: var(--card-bg);
   border-radius: var(--radius);
   padding: 20px;
   box-shadow: var(--shadow);
@@ -479,7 +509,7 @@ body {
 
 .jobs-list { display: flex; flex-direction: column; gap: 16px; }
 .job-card {
-  background: #fff;
+  background: var(--card-bg);
   border-radius: var(--radius);
   padding: 24px;
   box-shadow: var(--shadow);
@@ -505,7 +535,7 @@ body {
 
 .suggestions-list { display: flex; flex-direction: column; gap: 12px; }
 .suggestion-card {
-  background: #fff;
+  background: var(--card-bg);
   border-radius: var(--radius);
   padding: 20px;
   box-shadow: var(--shadow);
@@ -538,3 +568,25 @@ body {
 .suggestion-type.positive { color: var(--green-500); }
 .suggestion-cat { font-size: 11px; color: var(--gray-400); }
 .suggestion-text { font-size: 14px; color: var(--gray-700); margin-top: 4px; line-height: 1.6; }
+
+/* ── Theme Toggle Button ────────────────────────────────────── */
+.theme-toggle-btn {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.theme-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: scale(1.05);
+}
+.theme-toggle-btn svg {
+  stroke: #fff;
+}

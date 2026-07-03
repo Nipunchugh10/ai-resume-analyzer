@@ -150,55 +150,152 @@ def extract_skills(text: str) -> dict:
 
 # ─── 2. Section Detection ──────────────────────────────────────────
 
-SECTION_PATTERNS = {
+# --- Heading-level keywords: only match when they appear as a ---
+# --- section heading (start of line, standalone, or ALL-CAPS)  ---
+
+SECTION_HEADING_KEYWORDS = {
     "education": [
-        r'\beducation\b', r'\bacademic\b', r'\buniversity\b',
-        r'\bcollege\b', r'\bdegree\b', r'\bbachelor\b', r'\bmaster\b',
-        r'\bphd\b', r'\bb\.?tech\b', r'\bm\.?tech\b', r'\bcgpa\b',
-        r'\bgpa\b', r'\bb\.?sc\b', r'\bm\.?sc\b', r'\bb\.?e\b',
-        r'\bm\.?e\b', r'\bdiploma\b',
+        "education", "academic background", "academic qualifications",
+        "educational qualifications", "academic details",
     ],
     "experience": [
-        r'\bexperience\b', r'\bwork\s*history\b', r'\bemployment\b',
-        r'\binternship\b', r'\bworked\s*at\b', r'\brole\b',
-        r'\bposition\b', r'\bjob\b', r'\bcompany\b', r'\bemployer\b',
-        r'\bintern\b',
+        "experience", "work experience", "professional experience",
+        "work history", "employment history", "employment",
+        "internship experience", "internships",
     ],
     "projects": [
-        r'\bproject\b', r'\bportfolio\b', r'\bbuilt\b',
-        r'\bdeveloped\b', r'\bimplemented\b', r'\bcreated\b',
-        r'\bdesigned\b', r'\bapplication\b',
+        "projects", "personal projects", "academic projects",
+        "key projects", "selected projects", "project work",
     ],
     "skills": [
-        r'\bskill\b', r'\btechnical\b', r'\bproficien\b',
-        r'\btechnolog\b', r'\btool\b', r'\bframework\b',
-        r'\blanguage\b', r'\bstack\b',
+        "skills", "technical skills", "core competencies",
+        "technologies", "tools & technologies", "tools and technologies",
+        "tech stack", "proficiencies", "competencies",
     ],
     "certifications": [
-        r'\bcertif\b', r'\bcredential\b', r'\blicensed\b',
-        r'\bcourse\b', r'\btraining\b', r'\budemy\b',
-        r'\bcoursera\b', r'\bedx\b', r'\bgoogle\s*cloud\b',
-        r'\baws\s*certified\b',
+        "certifications", "certificates", "courses",
+        "training", "professional development", "credentials",
+        "courses & certifications", "licenses & certifications",
     ],
     "achievements": [
-        r'\bachieve\b', r'\baward\b', r'\bhonor\b',
-        r'\brecognition\b', r'\baccomplish\b', r'\bwon\b',
-        r'\bprize\b', r'\brank\b', r'\bhackathon\b',
+        "achievements", "awards", "honors", "accomplishments",
+        "awards & achievements", "recognitions",
+    ],
+}
+
+# --- Body-level evidence: secondary signals found in body text ---
+# --- These alone do NOT confirm a section, but support it      ---
+
+SECTION_BODY_EVIDENCE = {
+    "education": [
+        r'\bb\.?\s*tech\b', r'\bm\.?\s*tech\b', r'\bb\.?\s*sc\b',
+        r'\bm\.?\s*sc\b', r'\bb\.?\s*e\b', r'\bm\.?\s*e\b',
+        r'\bbachelor\b', r'\bmaster\b', r'\bphd\b', r'\bdiploma\b',
+        r'\buniversity\b', r'\bcollege\b', r'\binstitute\b',
+        r'\bcgpa\b', r'\bgpa\b',
+    ],
+    "experience": [
+        r'\binternship\b', r'\bintern\b',
+        r'\b(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\s*\d{4}\b',
+        r'\b\d{4}\s*[-–]\s*(?:\d{4}|present|current)\b',
+    ],
+    "projects": [
+        r'\bgithub\.com/\S+\b', r'\bdeployed\s+(?:on|to|at)\b',
+        r'\btech\s*stack\s*:', r'\bbuilt\s+(?:a|an|the|using)\b',
+    ],
+    "skills": [],
+    "certifications": [
+        r'\budemy\b', r'\bcoursera\b', r'\bedx\b',
+        r'\bgoogle\s*cloud\b', r'\baws\s*certified\b',
+        r'\bcertified\b',
+    ],
+    "achievements": [
+        r'\bhackathon\b', r'\bwon\b', r'\brank\b', r'\bprize\b',
+        r'\b1st\s*place\b', r'\b2nd\s*place\b', r'\b3rd\s*place\b',
+        r'\btop\s*\d+%?\b',
     ],
 }
 
 
+def _is_heading_line(line: str, keyword: str) -> bool:
+    """
+    Check if a line looks like a section heading containing the keyword.
+    Heading criteria:
+      - Line is short (≤ 80 chars after stripping)
+      - Keyword appears at or near the start of the line
+      - Line may be ALL-CAPS, Title Case, or preceded by markers (─, =, *, #)
+    """
+    stripped = line.strip()
+    if not stripped or len(stripped) > 80:
+        return False
+
+    stripped_lower = stripped.lower()
+    keyword_lower = keyword.lower()
+
+    # Must actually contain the keyword
+    if keyword_lower not in stripped_lower:
+        return False
+
+    # Good heading signals
+    is_short = len(stripped.split()) <= 8
+    is_upper = stripped.isupper()
+    is_title = stripped.istitle()
+    starts_with_keyword = stripped_lower.startswith(keyword_lower)
+    has_marker = bool(re.match(r'^[\s─═•\-\*#=|►▶→]+', stripped))
+
+    # Keyword at start of a short line is strong evidence
+    if starts_with_keyword and is_short:
+        return True
+    # ALL CAPS short line with the keyword
+    if is_upper and is_short:
+        return True
+    # Title case short line
+    if is_title and is_short:
+        return True
+    # Line starts with a marker followed by the keyword
+    if has_marker:
+        after_marker = re.sub(r'^[\s─═•\-\*#=|►▶→]+', '', stripped).strip().lower()
+        if after_marker.startswith(keyword_lower):
+            return True
+
+    return False
+
+
 def detect_sections(text: str) -> dict:
-    """Detect which sections are present in the resume."""
+    """
+    Detect which sections are present in the resume using
+    heading-level detection (primary) + body evidence (secondary).
+
+    A section is marked as detected only if:
+      - A heading-like line contains the section keyword, OR
+      - Multiple (≥ 2) body-level evidence patterns match
+    """
+    lines = text.split('\n')
     text_lower = text.lower()
     sections = {}
 
-    for section, patterns in SECTION_PATTERNS.items():
-        found = False
-        for pattern in patterns:
-            if re.search(pattern, text_lower):
-                found = True
+    for section, heading_keywords in SECTION_HEADING_KEYWORDS.items():
+        found_heading = False
+
+        # Primary: check for heading-like lines
+        for line in lines:
+            for keyword in heading_keywords:
+                if _is_heading_line(line, keyword):
+                    found_heading = True
+                    break
+            if found_heading:
                 break
-        sections[section] = found
+
+        if found_heading:
+            sections[section] = True
+            continue
+
+        # Secondary: count body-level evidence matches
+        body_patterns = SECTION_BODY_EVIDENCE.get(section, [])
+        evidence_count = sum(
+            1 for p in body_patterns if re.search(p, text_lower)
+        )
+        # Require at least 2 independent evidence signals
+        sections[section] = evidence_count >= 2
 
     return sections
